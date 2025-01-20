@@ -15,13 +15,20 @@ spec:
       containers:
         - name: mysql
           image: mysql:5.7
+          resources:
+            requests: ## Jumlah minimum resource yang dibutuhkan container
+              cpu: "200m"   # 0.2 CPU core
+              memory: "256Mi" # 256 Megabytes memory
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "root"
             - name: MYSQL_DATABASE
               value: "cart_db"
           ports:
-            - containerPort: 3306  # Change back to default MySQL port
+            - containerPort: 3306
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: mysql-persistent-storage
@@ -33,7 +40,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-db  # Changed to match your PHP config
+  name: mysql-db
 spec:
   selector:
     app: mysql

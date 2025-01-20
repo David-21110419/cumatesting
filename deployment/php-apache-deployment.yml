@@ -15,6 +15,13 @@ spec:
       containers:
         - name: php-apache-container
           image: littlemarmut23/foodapp2:php-apache
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           ports:
             - containerPort: 80
 ---

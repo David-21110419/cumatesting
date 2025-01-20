@@ -15,9 +15,16 @@ spec:
       containers:
         - name: phpmyadmin
           image: phpmyadmin/phpmyadmin
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           env:
             - name: PMA_HOST
-              value: "mysql-db"  # Match the MySQL service name
+              value: "mysql-db"
             - name: MYSQL_ROOT_PASSWORD
               value: "root"
           ports:
