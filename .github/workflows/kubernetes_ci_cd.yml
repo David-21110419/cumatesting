@@ -3,17 +3,15 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     
     steps:
     - uses: actions/checkout@v2
     
-    # Build and push Docker image
+    # Build dan push Docker image
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
@@ -28,27 +26,8 @@ jobs:
         push: true
         tags: littlemarmut23/foodapp2:php-apache-${{ github.sha }}
     
-    # Setup dan Deploy ke Kubernetes
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v1
-    
-    - name: Configure kubectl
-      run: |
-        mkdir -p $HOME/.kube
-        echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-        chmod 600 $HOME/.kube/config
-        
-    # Test koneksi ke cluster
-    - name: Test kubectl connection
-      run: |
-        kubectl cluster-info
-        kubectl get nodes
-    
     # Deploy ke Kubernetes
-    - name: Update deployment image
+    - name: Deploy to Kubernetes
       run: |
-        kubectl set image deployment/php-apache-deployment php-apache-container=littlemarmut23/foodapp2:php-apache-${{ github.sha }} -n default
-        
-    - name: Verify deployment
-      run: |
-        kubectl rollout status deployment/php-apache-deployment -n default
+        kubectl set image deployment/php-apache-deployment php-apache-container=littlemarmut23/foodapp2:php-apache-${{ github.sha }}
+        kubectl rollout status deployment/php-apache-deployment
