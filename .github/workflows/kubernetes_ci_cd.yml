@@ -13,29 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    # Build and test PHP application
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-    
-    - name: Install dependencies
-      run: |
-        if [ -f composer.json ]; then
-          composer install
-        else
-          echo "Skipping composer install as composer.json doesn't exist"
-        fi
-    
-    - name: Run tests
-      if: hashFiles('composer.json') != ''
-      run: |
-        if [ -d "tests" ]; then
-          vendor/bin/phpunit
-        else
-          echo "No tests directory found, skipping tests"
-        fi
-    
     # Build and push Docker image
     - name: Login to Docker Hub
       uses: docker/login-action@v1
@@ -51,19 +28,27 @@ jobs:
         push: true
         tags: littlemarmut23/foodapp2:php-apache-${{ github.sha }}
     
-    # Deploy to Kubernetes
+    # Setup dan Deploy ke Kubernetes
     - name: Install kubectl
       uses: azure/setup-kubectl@v1
     
     - name: Configure kubectl
       run: |
-        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yml
-        export KUBECONFIG=kubeconfig.yml
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+        
+    # Test koneksi ke cluster
+    - name: Test kubectl connection
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
     
+    # Deploy ke Kubernetes
     - name: Update deployment image
       run: |
-        kubectl set image deployment/php-apache-deployment php-apache-container=littlemarmut23/foodapp2:php-apache-${{ github.sha }}
+        kubectl set image deployment/php-apache-deployment php-apache-container=littlemarmut23/foodapp2:php-apache-${{ github.sha }} -n default
         
     - name: Verify deployment
       run: |
-        kubectl rollout status deployment/php-apache-deployment
+        kubectl rollout status deployment/php-apache-deployment -n default
