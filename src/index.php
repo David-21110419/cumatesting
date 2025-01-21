@@ -70,7 +70,7 @@ if ($result_all->num_rows > 0) {
 
     <!-- Products -->
 <section class="all-products">
-    <h2>Rekomendasi Terbaik Kami yo hai 2~</h2>
+    <h2>Rekomendasi Terbaik Kami yo hai 3~</h2>
     <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
